@@ -1,8 +1,17 @@
 const userModel= require("../model/user.model")
+const otpModel=require("../model/otpmode.mode")
 const blacklistoken=require("../model/blacklistmodel.model")
 const bcrypt= require("bcrypt")
 const jwt=require("jsonwebtoken")
 
+const twilio = require('twilio');
+const client = twilio(
+    process.env.TWILIO_ACCOUNT_SID,
+    process.env.TWILIO_AUTH_TOKEN
+  );
+  function generateOTP() {
+    return Math.floor(100000 + Math.random() * 900000).toString();
+  }
 
 module.exports.register= (async (req,res)=>{
      try{
@@ -61,5 +70,42 @@ module.exports.logout= async(req,res)=>{
     }
     catch(e){
          res.status(500).json({message:error.message})
+    }
+}
+
+
+
+module.exports.sendOtp= async(req,res,next)=>{
+    try{
+        const { phoneNumber } = req.body;
+
+        // Validate phone number
+        if (!phoneNumber) {
+          return res.status(400).json({ error: 'Phone number required' });
+        }
+    
+        // Generate OTP
+        const otp_gen = generateOTP();
+        const message = `Your verification code is: ${otp_gen}`;
+    
+        // Send SMS
+        await client.messages.create({
+          body: message,
+          from: process.env.TWILIO_PHONE_NUMBER,
+          to: phoneNumber
+        });
+    
+        // Store OTP with expiration (5 minutes)
+        const otpmodel= new otpModel({otp:otp_gen,phoneNumber:phoneNumber})
+        await otpmodel.save()
+       
+    
+        res.status(200).json({ 
+          success: true,
+          message: 'OTP sent successfully'
+        });
+    }
+    catch(e){
+        res.status(500).json({message:e.message})
     }
 }
