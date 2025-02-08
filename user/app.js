@@ -1,18 +1,23 @@
-const dotenv=require("dotenv")
+const dotenv = require('dotenv')
 dotenv.config()
-const express= require("express")
-const app= express()
-const userRouter=require("./routes/user.routes")
-const cookieParser=require("cookie-parser")
-const connect=require("./db/db")
-
-app.use(express.json)
-app.use(express.urlencoded({extended:true}))
-app.use(cookieParser())
-app.use('/',(req,res,next)=>{
-   res.send(200).json({message:"Server Running"})
-})
-app.use('/user',userRouter)
+const express = require('express')
+const app = express()
+const connect = require('./db/db')
 connect()
+const userRoutes = require('./routes/user.routes')
+const cookieParser = require('cookie-parser')
+// const rabbitMq = require('./service/rabbit')
 
-module.exports=app
+// rabbitMq.connect()
+
+
+app.use(express.json())
+app.use(express.urlencoded({ extended: true }))
+app.use(cookieParser())
+
+app.get("/heartbeat", (req, res) =>
+  res.send(`<h1>The user service is running</h1>`)
+);
+app.use('/api', userRoutes)
+
+module.exports = app
