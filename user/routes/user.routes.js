@@ -11,7 +11,8 @@ router.get("/heartbeat",((req,res)=>{
      res.status(200).json({message:"server running"})
 }))
 
-
+router.post('/login',userController.login)
+router.post("/logout",userController.logout)
 
 
 module.exports=router
