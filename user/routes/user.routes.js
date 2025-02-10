@@ -14,5 +14,6 @@ router.get("/heartbeat",((req,res)=>{
 router.post('/login',userController.login)
 router.post("/logout",userController.logout)
 router.post("/sendotp",userController.sendOtp)
+router.post("/verify-otp",userController.verifyOTP)
 
 module.exports=router

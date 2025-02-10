@@ -109,3 +109,23 @@ module.exports.sendOtp= async(req,res,next)=>{
         res.status(500).json({message:e.message})
     }
 }
+
+
+module.exports.verifyOTP= async(req,res)=>{
+    try{
+        const {otp}=req.body;
+        const result= await otpModel.findOne({otp});
+        console.log(result)
+        if(result){ 
+           await otpModel.deleteOne({otp})
+           res.status(200).json({status:true,message:"OTP verified"})
+        }
+        else{
+            res.status(400).json({status:false,message:"Invalid OTP"})
+            console.log("no")
+        }
+     }
+     catch(e){
+           console.log(e)
+     }
+}
